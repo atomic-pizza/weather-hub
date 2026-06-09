@@ -37,3 +37,26 @@ button{padding:10px;border:none;border-radius:8px;cursor:pointer}
     padding:10px;
     border-radius:8px;
 }
+.hourly-scroll,
+.daily-scroll{
+    display:flex;
+    gap:10px;
+    overflow-x:auto;
+    padding-bottom:10px;
+}
+
+.hour-card,
+.day-card{
+    min-width:100px;
+    background:#1F2937;
+    border-radius:10px;
+    padding:10px;
+    text-align:center;
+    flex-shrink:0;
+}
+
+.hour-card .temp,
+.day-card .temp{
+    font-size:1.3rem;
+    font-weight:bold;
+}
