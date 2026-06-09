@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Weather Hub Pro</title>
+<link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+body{margin:0;font-family:Arial;background:#0f172a;color:#fff}
+header{background:#22C55E;padding:14px;text-align:center;font-size:24px;font-weight:bold}
+nav{display:flex;overflow:auto;background:#111827}
+nav button{flex:1;padding:12px;border:0;background:#111827;color:#fff}
+section{padding:10px}
+.card{background:#1f2937;border-radius:12px;padding:12px;margin-bottom:10px}
+.hidden{display:none}
+#map{height:50vh}
+.loc{cursor:pointer;padding:6px}
+.forecastRow{padding:4px 0}
+</style>
+</head>
+<body>
+<header>Weather Hub Pro</header>
+
+<nav>
+<button onclick="showTab('home')">Home</button>
+<button onclick="showTab('radar')">Radar</button>
+<button onclick="showTab('forecast')">Forecast</button>
+<button onclick="showTab('alerts')">Alerts</button>
+<button onclick="showTab('locations')">Locations</button>
+</nav>
+
+<section id="home">
+<div class="card">
+<input id="address" placeholder="Enter address">
+<button onclick="saveAddress()">Save</button>
+</div>
+<div class="card">
+<h1 id="temp">--</h1>
+<div id="condition"></div>
+<div id="details"></div>
+</div>
+</section>
+
+<section id="radar" class="hidden">
+<div class="card">
+Opacity <input type="range" min="0" max="100" value="60" oninput="setOpacity(this.value)">
+</div>
+<div id="map"></div>
+</section>
+
+<section id="forecast" class="hidden">
+<div class="card"><h3>7 Day Forecast</h3><div id="forecastData"></div></div>
+</section>
+
+<section id="alerts" class="hidden">
+<div class="card">
+For U.S. deployments, connect the National Weather Service API:<br>
+https://api.weather.gov/alerts
+</div>
+</section>
+
+<section id="locations" class="hidden">
+<div class="card">
+<div id="locationsList"></div>
+</div>
+</section>
+
+<script>
+let map, marker, radarLayer;
+
+function showTab(id){
+ document.querySelectorAll('section').forEach(s=>s.classList.add('hidden'));
+ document.getElementById(id).classList.remove('hidden');
+}
+
+async function geocode(q){
+ const r=await fetch('https://nominatim.openstreetmap.org/search?format=json&q='+encodeURIComponent(q));
+ const d=await r.json();
+ return d[0];
+}
+
+async function saveAddress(){
+ const a=document.getElementById('address').value;
+ const d=await geocode(a);
+ if(!d) return alert('Not found');
+ const loc={name:d.display_name,lat:+d.lat,lon:+d.lon};
+ localStorage.setItem('defaultLocation',JSON.stringify(loc));
+ let saved=JSON.parse(localStorage.getItem('savedLocations')||'[]');
+ saved.push(loc);
+ localStorage.setItem('savedLocations',JSON.stringify(saved));
+ renderLocations();
+ loadLocation(loc);
+}
+
+function renderLocations(){
+ const list=document.getElementById('locationsList');
+ list.innerHTML='';
+ const saved=JSON.parse(localStorage.getItem('savedLocations')||'[]');
+ saved.forEach(l=>{
+  const div=document.createElement('div');
+  div.className='loc';
+  div.textContent='📍 '+l.name;
+  div.onclick=()=>loadLocation(l);
+  list.appendChild(div);
+ });
+}
+
+function weatherText(code){
+ const m={0:'Clear',1:'Mostly Clear',2:'Partly Cloudy',3:'Cloudy',61:'Rain',71:'Snow',95:'Thunderstorm'};
+ return m[code]||('Code '+code);
+}
+
+async function loadLocation(loc){
+ const url=`https://api.open-meteo.com/v1/forecast?latitude=${loc.lat}&longitude=${loc.lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min&timezone=auto`;
+ const r=await fetch(url);
+ const d=await r.json();
+
+ document.getElementById('temp').textContent=Math.round(d.current.temperature_2m)+'°';
+ document.getElementById('condition').textContent=weatherText(d.current.weather_code);
+ document.getElementById('details').textContent=
+ 'Feels Like '+Math.round(d.current.apparent_temperature)+'° | Humidity '+d.current.relative_humidity_2m+'% | Wind '+Math.round(d.current.wind_speed_10m);
+
+ const fc=document.getElementById('forecastData');
+ fc.innerHTML='';
+ d.daily.time.forEach((day,i)=>{
+   const row=document.createElement('div');
+   row.className='forecastRow';
+   row.textContent=`${day}: ${Math.round(d.daily.temperature_2m_min[i])}° / ${Math.round(d.daily.temperature_2m_max[i])}°`;
+   fc.appendChild(row);
+ });
+
+ if(!map){
+   map=L.map('map').setView([loc.lat,loc.lon],8);
+   L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+   radarLayer=L.tileLayer('https://tilecache.rainviewer.com/v2/radar/latest/256/{z}/{x}/{y}/2/1_1.png',{opacity:.6}).addTo(map);
+   marker=L.marker([loc.lat,loc.lon]).addTo(map);
+ } else {
+   map.setView([loc.lat,loc.lon],8);
+   marker.setLatLng([loc.lat,loc.lon]);
+ }
+}
+
+function setOpacity(v){
+ if(radarLayer) radarLayer.setOpacity(v/100);
+}
+
+renderLocations();
+const def=localStorage.getItem('defaultLocation');
+if(def) loadLocation(JSON.parse(def));
+</script>
+</body>
+</html>
