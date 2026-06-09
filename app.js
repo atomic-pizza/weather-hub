@@ -1,1 +1,68 @@
-const defaults=[{name:'Home',query:'New Salem, KS'},{name:'Wichita',query:'Wichita, KS'},{name:'Ponca City',query:'Ponca City, OK'}];let viewMode=localStorage.getItem('viewMode')||'cards';function showTab(id){document.querySelectorAll('section').forEach(s=>s.classList.add('hidden'));document.getElementById(id).classList.remove('hidden')}function setView(v){viewMode=v;localStorage.setItem('viewMode',v);renderDashboard()}async function geocode(q){let r=await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=1`);let d=await r.json();return d.results?.[0]}async function weather(lat,lon){let r=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,apparent_temperature,relative_humidity_2m,wind_speed_10m&temperature_unit=fahrenheit&wind_speed_unit=mph`);return r.json()}function getLocations(){let s=JSON.parse(localStorage.getItem('locations')||'null');if(!s){s=defaults;localStorage.setItem('locations',JSON.stringify(s))}return s}async function renderDashboard(){let el=document.getElementById('dashboard');el.innerHTML='Loading...';let h='';for(const loc of getLocations()){let g=await geocode(loc.query);if(!g)continue;let w=await weather(g.latitude,g.longitude);let c=w.current;if(viewMode==='compact'){h+=`<div class='card'><b>${loc.name}</b> ${Math.round(c.temperature_2m)}°F</div>`}else{h+=`<div class='card'><h3>${loc.name}</h3><h1>${Math.round(c.temperature_2m)}°F</h1><div>Feels Like ${Math.round(c.apparent_temperature)}°F</div><div>Humidity ${c.relative_humidity_2m}%</div><div>Wind ${Math.round(c.wind_speed_10m)} mph</div></div>`}}el.innerHTML=h;renderLocations()}async function addLocation(){let q=document.getElementById('search').value;let g=await geocode(q);if(!g)return alert('Not found');let a=getLocations();a.push({name:g.name,query:g.name});localStorage.setItem('locations',JSON.stringify(a));renderDashboard()}function deleteLocation(i){let a=getLocations();a.splice(i,1);localStorage.setItem('locations',JSON.stringify(a));renderDashboard()}function renderLocations(){let el=document.getElementById('locationsList');if(!el)return;el.innerHTML='';getLocations().forEach((l,i)=>el.innerHTML+=`<div>${l.name} <button onclick='deleteLocation(${i})'>Delete</button></div>`)}showTab('dashboard');renderDashboard();
+
+const LOCATIONS=[
+ {label:'🏠 Home',lat:37.19,lon:-97.04},
+ {label:'🌆 Wichita',lat:37.6872,lon:-97.3301},
+ {label:'🚗 Ponca City',lat:36.7069,lon:-97.0856}
+];
+
+let viewMode=localStorage.getItem('viewMode')||'cards';
+
+document.getElementById('cardBtn').onclick=()=>{
+ viewMode='cards';
+ localStorage.setItem('viewMode',viewMode);
+ loadWeather();
+};
+
+document.getElementById('compactBtn').onclick=()=>{
+ viewMode='compact';
+ localStorage.setItem('viewMode',viewMode);
+ loadWeather();
+};
+
+async function fetchWeather(lat,lon){
+ const url=`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,apparent_temperature,relative_humidity_2m,wind_speed_10m&temperature_unit=fahrenheit&wind_speed_unit=mph`;
+ const r=await fetch(url);
+ if(!r.ok) throw new Error('Weather API error');
+ return await r.json();
+}
+
+async function loadWeather(){
+ const dash=document.getElementById('dashboard');
+ dash.innerHTML='';
+ document.getElementById('status').textContent='Loading weather...';
+
+ try{
+   for(const loc of LOCATIONS){
+     const data=await fetchWeather(loc.lat,loc.lon);
+     const c=data.current;
+
+     if(viewMode==='compact'){
+       dash.innerHTML += `
+       <div class="compact">
+         <div>${loc.label}</div>
+         <div><b>${Math.round(c.temperature_2m)}°F</b></div>
+       </div>`;
+     }else{
+       dash.innerHTML += `
+       <div class="card">
+         <div>${loc.label}</div>
+         <div class="temp">${Math.round(c.temperature_2m)}°F</div>
+         <div>Feels Like ${Math.round(c.apparent_temperature)}°F</div>
+         <div>Humidity ${c.relative_humidity_2m}%</div>
+         <div>Wind ${Math.round(c.wind_speed_10m)} mph</div>
+         <div class="small">Updated ${new Date().toLocaleTimeString()}</div>
+       </div>`;
+     }
+   }
+   document.getElementById('status').textContent='';
+ }catch(err){
+   console.error(err);
+   document.getElementById('status').textContent='Unable to load weather data.';
+ }
+}
+
+if('serviceWorker' in navigator){
+ navigator.serviceWorker.register('./service-worker.js').catch(console.error);
+}
+
+loadWeather();

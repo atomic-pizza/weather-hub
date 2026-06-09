@@ -1,1 +1,8 @@
-{"name":"Weather Hub v3","short_name":"WeatherHub","display":"standalone","start_url":"./","theme_color":"#22C55E","background_color":"#0F172A"}
+{
+"name":"Weather Hub",
+"short_name":"WeatherHub",
+"display":"standalone",
+"start_url":"./",
+"theme_color":"#22C55E",
+"background_color":"#0F172A"
+}
