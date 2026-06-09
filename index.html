@@ -16,7 +16,29 @@
 </div>
 
 <div id="status">Loading weather...</div>
-<div id="dashboard"></div>
+
+<div id="dashboardView">
+    <div id="dashboard"></div>
+</div>
+
+<div id="forecastView" style="display:none;">
+    <button id="backBtn">← Back</button>
+
+    <h2 id="forecastTitle">Forecast</h2>
+
+    <div id="currentConditions"></div>
+
+    <h3>Next 24 Hours</h3>
+    <div id="hourlyForecast"></div>
+
+    <h3>7 Day Forecast</h3>
+    <div id="dailyForecast"></div>
+</div>
+
+  <nav class="bottom-nav">
+    <button id="navDashboard">Dashboard</button>
+    <button id="navForecast">Forecast</button>
+</nav>
 
 <script src="app.js"></script>
 </body>
