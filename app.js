@@ -1,3 +1,21 @@
+let selectedLocation = 0;
+
+function weatherDescription(code){
+
+    const map = {
+        0:"☀ Clear Sky",
+        1:"🌤 Mostly Clear",
+        2:"⛅ Partly Cloudy",
+        3:"☁ Overcast",
+        45:"🌫 Fog",
+        61:"🌧 Rain",
+        63:"🌧 Moderate Rain",
+        65:"🌧 Heavy Rain",
+        95:"⛈ Thunderstorm"
+    };
+
+    return map[code] || "Unknown";
+}
 
 const LOCATIONS=[
  {label:'🏠 Home',lat:37.19,lon:-97.04},
