@@ -7,3 +7,33 @@ button{padding:10px;border:none;border-radius:8px;cursor:pointer}
 .temp{font-size:2.2rem;font-weight:bold}
 .compact{display:flex;justify-content:space-between;background:#1F2937;margin:10px;padding:12px;border-radius:12px}
 .small{opacity:.8;font-size:.9rem}
+.bottom-nav{
+    position:fixed;
+    bottom:0;
+    left:0;
+    right:0;
+
+    display:flex;
+
+    background:#1F2937;
+
+    border-top:1px solid #374151;
+}
+
+.bottom-nav button{
+    flex:1;
+    padding:14px;
+}
+
+#forecastView{
+    padding:10px;
+    padding-bottom:80px;
+}
+
+.hour-row,
+.day-row{
+    background:#1F2937;
+    margin:6px 0;
+    padding:10px;
+    border-radius:8px;
+}
