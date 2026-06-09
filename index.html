@@ -4,23 +4,110 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Weather Hub Pro</title>
+
 <link rel="manifest" href="manifest.json">
+
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
 <style>
-body{margin:0;font-family:Arial;background:#0f172a;color:#fff}
-header{background:#22C55E;padding:14px;text-align:center;font-size:24px;font-weight:bold}
-nav{display:flex;overflow:auto;background:#111827}
-nav button{flex:1;padding:12px;border:0;background:#111827;color:#fff}
-section{padding:10px}
-.card{background:#1f2937;border-radius:12px;padding:12px;margin-bottom:10px}
-.hidden{display:none}
-#map{height:50vh}
-.loc{cursor:pointer;padding:6px}
-.forecastRow{padding:4px 0}
+body{
+    margin:0;
+    font-family:Arial,sans-serif;
+    background:#0f172a;
+    color:white;
+}
+
+header{
+    background:#22C55E;
+    padding:16px;
+    text-align:center;
+    font-size:2rem;
+    font-weight:bold;
+}
+
+nav{
+    display:flex;
+    background:#111827;
+}
+
+nav button{
+    flex:1;
+    padding:12px;
+    border:none;
+    background:#111827;
+    color:white;
+    cursor:pointer;
+}
+
+nav button:hover{
+    background:#1f2937;
+}
+
+section{
+    padding:10px;
+}
+
+.hidden{
+    display:none;
+}
+
+.card{
+    background:#1f2937;
+    border-radius:12px;
+    padding:12px;
+    margin-bottom:10px;
+}
+
+input{
+    padding:10px;
+    border-radius:8px;
+    border:none;
+    width:250px;
+}
+
+button{
+    padding:10px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+#temp{
+    font-size:3rem;
+    margin:0;
+}
+
+#locationName{
+    font-size:1.1rem;
+    opacity:.8;
+    margin-bottom:10px;
+}
+
+.loc{
+    cursor:pointer;
+    padding:8px;
+    border-bottom:1px solid #374151;
+}
+
+.loc:hover{
+    background:#374151;
+}
+
+#map{
+    width:100%;
+    height:60vh;
+    min-height:450px;
+}
+
+.forecastRow{
+    padding:6px 0;
+    border-bottom:1px solid #374151;
+}
 </style>
 </head>
 <body>
+
 <header>Weather Hub Pro</header>
 
 <nav>
@@ -32,123 +119,304 @@ section{padding:10px}
 </nav>
 
 <section id="home">
+
 <div class="card">
-<input id="address" placeholder="Enter address">
+<input id="address" placeholder="Winfield, KS">
 <button onclick="saveAddress()">Save</button>
 </div>
+
 <div class="card">
+<div id="locationName">No location selected</div>
 <h1 id="temp">--</h1>
 <div id="condition"></div>
 <div id="details"></div>
 </div>
+
 </section>
 
 <section id="radar" class="hidden">
+
 <div class="card">
-Opacity <input type="range" min="0" max="100" value="60" oninput="setOpacity(this.value)">
+Opacity
+<input
+type="range"
+min="0"
+max="100"
+value="60"
+oninput="setOpacity(this.value)">
 </div>
+
 <div id="map"></div>
+
 </section>
 
 <section id="forecast" class="hidden">
-<div class="card"><h3>7 Day Forecast</h3><div id="forecastData"></div></div>
+
+<div class="card">
+<h3>7 Day Forecast</h3>
+<div id="forecastData"></div>
+</div>
+
 </section>
 
 <section id="alerts" class="hidden">
+
 <div class="card">
-For U.S. deployments, connect the National Weather Service API:<br>
-https://api.weather.gov/alerts
+NWS Alerts integration coming in v3.
 </div>
+
 </section>
 
 <section id="locations" class="hidden">
+
 <div class="card">
 <div id="locationsList"></div>
 </div>
+
 </section>
 
 <script>
-let map, marker, radarLayer;
+
+let map;
+let marker;
+let radarLayer;
 
 function showTab(id){
- document.querySelectorAll('section').forEach(s=>s.classList.add('hidden'));
- document.getElementById(id).classList.remove('hidden');
+
+    document
+        .querySelectorAll('section')
+        .forEach(s => s.classList.add('hidden'));
+
+    document
+        .getElementById(id)
+        .classList.remove('hidden');
+
+    if(id === 'radar' && map){
+
+        setTimeout(() => {
+            map.invalidateSize();
+        },150);
+
+    }
 }
 
-async function geocode(q){
- const r=await fetch('https://nominatim.openstreetmap.org/search?format=json&q='+encodeURIComponent(q));
- const d=await r.json();
- return d[0];
+async function geocode(query){
+
+    const url =
+    `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`;
+
+    const response = await fetch(url);
+
+    const data = await response.json();
+
+    return data[0];
 }
 
 async function saveAddress(){
- const a=document.getElementById('address').value;
- const d=await geocode(a);
- if(!d) return alert('Not found');
- const loc={name:d.display_name,lat:+d.lat,lon:+d.lon};
- localStorage.setItem('defaultLocation',JSON.stringify(loc));
- let saved=JSON.parse(localStorage.getItem('savedLocations')||'[]');
- saved.push(loc);
- localStorage.setItem('savedLocations',JSON.stringify(saved));
- renderLocations();
- loadLocation(loc);
-}
 
-function renderLocations(){
- const list=document.getElementById('locationsList');
- list.innerHTML='';
- const saved=JSON.parse(localStorage.getItem('savedLocations')||'[]');
- saved.forEach(l=>{
-  const div=document.createElement('div');
-  div.className='loc';
-  div.textContent='📍 '+l.name;
-  div.onclick=()=>loadLocation(l);
-  list.appendChild(div);
- });
+    const search =
+    document.getElementById('address').value;
+
+    if(!search) return;
+
+    const result = await geocode(search);
+
+    if(!result){
+
+        alert("Location not found");
+        return;
+    }
+
+    const loc = {
+
+        name: result.display_name,
+        lat: parseFloat(result.lat),
+        lon: parseFloat(result.lon)
+
+    };
+
+    localStorage.setItem(
+        'defaultLocation',
+        JSON.stringify(loc)
+    );
+
+    let saved =
+    JSON.parse(
+        localStorage.getItem('savedLocations') || '[]'
+    );
+
+    const exists =
+    saved.some(
+        item => item.name === loc.name
+    );
+
+    if(!exists){
+
+        saved.push(loc);
+
+        localStorage.setItem(
+            'savedLocations',
+            JSON.stringify(saved)
+        );
+    }
+
+    renderLocations();
+
+    loadLocation(loc);
 }
 
 function weatherText(code){
- const m={0:'Clear',1:'Mostly Clear',2:'Partly Cloudy',3:'Cloudy',61:'Rain',71:'Snow',95:'Thunderstorm'};
- return m[code]||('Code '+code);
+
+    const codes = {
+
+        0:"Clear Sky",
+        1:"Mainly Clear",
+        2:"Partly Cloudy",
+        3:"Overcast",
+        45:"Fog",
+        48:"Freezing Fog",
+        51:"Light Drizzle",
+        53:"Drizzle",
+        55:"Heavy Drizzle",
+        61:"Rain",
+        63:"Moderate Rain",
+        65:"Heavy Rain",
+        71:"Snow",
+        73:"Moderate Snow",
+        75:"Heavy Snow",
+        80:"Rain Showers",
+        95:"Thunderstorm"
+
+    };
+
+    return codes[code] || `Code ${code}`;
 }
 
 async function loadLocation(loc){
- const url=`https://api.open-meteo.com/v1/forecast?latitude=${loc.lat}&longitude=${loc.lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min&timezone=auto`;
- const r=await fetch(url);
- const d=await r.json();
 
- document.getElementById('temp').textContent=Math.round(d.current.temperature_2m)+'°';
- document.getElementById('condition').textContent=weatherText(d.current.weather_code);
- document.getElementById('details').textContent=
- 'Feels Like '+Math.round(d.current.apparent_temperature)+'° | Humidity '+d.current.relative_humidity_2m+'% | Wind '+Math.round(d.current.wind_speed_10m);
+    document.getElementById('locationName').innerText =
+    loc.name;
 
- const fc=document.getElementById('forecastData');
- fc.innerHTML='';
- d.daily.time.forEach((day,i)=>{
-   const row=document.createElement('div');
-   row.className='forecastRow';
-   row.textContent=`${day}: ${Math.round(d.daily.temperature_2m_min[i])}° / ${Math.round(d.daily.temperature_2m_max[i])}°`;
-   fc.appendChild(row);
- });
+    const url =
+`https://api.open-meteo.com/v1/forecast?latitude=${loc.lat}&longitude=${loc.lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=auto`;
 
- if(!map){
-   map=L.map('map').setView([loc.lat,loc.lon],8);
-   L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-   radarLayer=L.tileLayer('https://tilecache.rainviewer.com/v2/radar/latest/256/{z}/{x}/{y}/2/1_1.png',{opacity:.6}).addTo(map);
-   marker=L.marker([loc.lat,loc.lon]).addTo(map);
- } else {
-   map.setView([loc.lat,loc.lon],8);
-   marker.setLatLng([loc.lat,loc.lon]);
- }
+    const response = await fetch(url);
+
+    const data = await response.json();
+
+    document.getElementById('temp').innerText =
+    Math.round(data.current.temperature_2m) + "°F";
+
+    document.getElementById('condition').innerText =
+    weatherText(data.current.weather_code);
+
+    document.getElementById('details').innerText =
+    `Feels Like ${Math.round(data.current.apparent_temperature)}°F | Humidity ${data.current.relative_humidity_2m}% | Wind ${Math.round(data.current.wind_speed_10m)} mph`;
+
+    const forecast =
+    document.getElementById('forecastData');
+
+    forecast.innerHTML = "";
+
+    data.daily.time.forEach((day,index)=>{
+
+        const row =
+        document.createElement('div');
+
+        row.className =
+        "forecastRow";
+
+        row.innerText =
+        `${day} : ${Math.round(data.daily.temperature_2m_min[index])}°F / ${Math.round(data.daily.temperature_2m_max[index])}°F`;
+
+        forecast.appendChild(row);
+
+    });
+
+    if(!map){
+
+        map =
+        L.map('map')
+        .setView([loc.lat,loc.lon],8);
+
+        L.tileLayer(
+            'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+            {
+                maxZoom:19
+            }
+        ).addTo(map);
+
+        marker =
+        L.marker([loc.lat,loc.lon])
+        .addTo(map);
+
+    }
+    else{
+
+        map.setView([loc.lat,loc.lon],8);
+
+        marker.setLatLng(
+            [loc.lat,loc.lon]
+        );
+    }
 }
 
-function setOpacity(v){
- if(radarLayer) radarLayer.setOpacity(v/100);
+function setOpacity(value){
+
+    if(radarLayer){
+
+        radarLayer.setOpacity(
+            value / 100
+        );
+    }
+}
+
+function renderLocations(){
+
+    const list =
+    document.getElementById('locationsList');
+
+    list.innerHTML = "";
+
+    const saved =
+    JSON.parse(
+        localStorage.getItem('savedLocations') || '[]'
+    );
+
+    saved.forEach(loc => {
+
+        const div =
+        document.createElement('div');
+
+        div.className =
+        'loc';
+
+        div.innerText =
+        '📍 ' + loc.name;
+
+        div.onclick =
+        () => loadLocation(loc);
+
+        list.appendChild(div);
+
+    });
 }
 
 renderLocations();
-const def=localStorage.getItem('defaultLocation');
-if(def) loadLocation(JSON.parse(def));
+
+const defaultLocation =
+localStorage.getItem(
+    'defaultLocation'
+);
+
+if(defaultLocation){
+
+    loadLocation(
+        JSON.parse(defaultLocation)
+    );
+}
+
 </script>
+
 </body>
 </html>
