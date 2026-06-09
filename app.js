@@ -13,7 +13,11 @@ function weatherDescription(code){
         65:"🌧 Heavy Rain",
         95:"⛈ Thunderstorm"
     };
-    function formatHour(timeString){
+
+    return map[code] || "Unknown";
+}
+
+function formatHour(timeString){
 
     const date = new Date(timeString);
 
@@ -26,7 +30,8 @@ function weatherDescription(code){
     );
 
 }
-    function formatDay(dateString,index){
+
+function formatDay(dateString,index){
 
     if(index===0) return "Today";
 
@@ -38,9 +43,6 @@ function weatherDescription(code){
             { weekday:'long' }
         );
 
-}
-
-    return map[code] || "Unknown";
 }
 
 const LOCATIONS=[
@@ -203,10 +205,6 @@ for(let i=0;i<data.daily.time.length;i++){
 }
 
 dailyHtml+='</div>';
-
-document.getElementById(
-    'dailyForecast'
-).innerHTML=dailyHtml;
 
     document.getElementById('dailyForecast').innerHTML=
     dailyHtml;
