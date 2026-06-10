@@ -63,7 +63,7 @@ function initializeRadar(){
     if(radarMap) return;
 
     radarMap = L.map('radarMap').setView(
-        [37.19,-97.04],
+        [37.2427,-96.8525],
         9
     );
 
@@ -87,7 +87,7 @@ function initializeRadar(){
 );
 
     radarLayer.addTo(radarMap);
-    L.marker([37.19,-97.04])
+    L.marker([37.2427,-96.8525])
     .addTo(radarMap)
     .bindPopup('🏠 New Salem');
 
@@ -98,7 +98,7 @@ function initializeRadar(){
 }
 
 const LOCATIONS=[
- {label:'🏠 Home',lat:37.19,lon:-97.04},
+ {label:'🏠 Home',lat:37.2427,lon:-96.8525},
  {label:'🌆 Wichita',lat:37.6872,lon:-97.3301},
  {label:'🚗 Ponca City',lat:36.7069,lon:-97.0856}
 ];
@@ -320,7 +320,7 @@ document.getElementById('radarHomeBtn')
     ()=>{
 
         radarMap.setView(
-            [37.19,-97.04],
+            [37.2427,-96.8525],
             9
         );
 
