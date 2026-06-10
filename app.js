@@ -46,6 +46,49 @@ function formatDay(dateString,index){
 
 }
 
+let radarMap;
+let radarLayer;
+
+function showRadar(){
+
+    document.getElementById('dashboardView').style.display='none';
+    document.getElementById('forecastView').style.display='none';
+    document.getElementById('radarView').style.display='block';
+
+    initializeRadar();
+}
+
+function initializeRadar(){
+
+    if(radarMap) return;
+
+    radarMap = L.map('radarMap').setView(
+        [37.19,-97.04],
+        8
+    );
+
+    L.tileLayer(
+        'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+        {
+            attribution:'© OpenStreetMap'
+        }
+    ).addTo(radarMap);
+
+    radarLayer = L.tileLayer(
+        'https://opengeo.ncep.noaa.gov/geoserver/conus/conus_bref_qcd/ows?service=WMS&version=1.1.1&request=GetMap&layers=conus_bref_qcd&styles=&format=image/png&transparent=true&srs=EPSG:3857&width=256&height=256&bbox={bbox-epsg-3857}',
+        {
+            opacity:0.7
+        }
+    );
+
+    radarLayer.addTo(radarMap);
+
+    setTimeout(
+        ()=>radarMap.invalidateSize(),
+        100
+    );
+}
+
 const LOCATIONS=[
  {label:'🏠 Home',lat:37.19,lon:-97.04},
  {label:'🌆 Wichita',lat:37.6872,lon:-97.3301},
@@ -256,6 +299,37 @@ document.getElementById('navForecast')
 
 document.getElementById('backBtn')
 ?.addEventListener('click',showDashboard);
+
+document.getElementById('navRadar')
+?.addEventListener(
+    'click',
+    showRadar
+);
+
+document.getElementById('radarHomeBtn')
+?.addEventListener(
+    'click',
+    ()=>{
+
+        radarMap.setView(
+            [37.19,-97.04],
+            8
+        );
+
+    }
+);
+
+document.getElementById('opacitySlider')
+?.addEventListener(
+    'input',
+    e=>{
+
+        radarLayer?.setOpacity(
+            e.target.value/100
+        );
+
+    }
+);
 
 if('serviceWorker' in navigator){
  navigator.serviceWorker.register('./service-worker.js').catch(console.error);
