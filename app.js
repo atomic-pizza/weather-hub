@@ -149,14 +149,33 @@ async function openForecast(index){
 
     let hourlyHtml='<div class="hourly-scroll">';
 
-for(let i=0;i<24;i++){
+const now = new Date();
 
-    hourlyHtml+=`
+const currentHourIndex =
+    data.hourly.time.findIndex(time => {
+
+        const forecastTime = new Date(time);
+
+        return forecastTime.getHours() === now.getHours()
+            && forecastTime.getDate() === now.getDate();
+
+    });
+
+for(let offset=0; offset<24; offset++){
+
+    const i = currentHourIndex + offset;
+
+    if(i >= data.hourly.time.length) break;
+
+    const label =
+        offset === 0
+            ? 'Now'
+            : formatHour(data.hourly.time[i]);
+
+    hourlyHtml += `
         <div class="hour-card">
 
-            <div>
-                ${formatHour(data.hourly.time[i])}
-            </div>
+            <div>${label}</div>
 
             <div class="temp">
                 ${Math.round(
@@ -167,6 +186,12 @@ for(let i=0;i<24;i++){
         </div>
     `;
 }
+
+hourlyHtml += '</div>';
+
+document.getElementById(
+    'hourlyForecast'
+).innerHTML = hourlyHtml;
 
 hourlyHtml+='</div>';
 
