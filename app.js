@@ -98,7 +98,7 @@ function initializeRadar(){
 }
 const HOME_LAT = 37.317389;
 const HOME_LON = -96.898306;
-const HOME_ZOOM = 9;
+const HOME_ZOOM = 10;
 
 const LOCATIONS = [
     { label:'🏠 Home', lat:HOME_LAT, lon:HOME_LON },
