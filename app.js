@@ -74,12 +74,17 @@ function initializeRadar(){
         }
     ).addTo(radarMap);
 
-    radarLayer = L.tileLayer(
-        'https://opengeo.ncep.noaa.gov/geoserver/conus/conus_bref_qcd/ows?service=WMS&version=1.1.1&request=GetMap&layers=conus_bref_qcd&styles=&format=image/png&transparent=true&srs=EPSG:3857&width=256&height=256&bbox={bbox-epsg-3857}',
-        {
-            opacity:0.7
-        }
-    );
+    radarLayer = L.tileLayer.wms(
+    'https://opengeo.ncep.noaa.gov/geoserver/conus/conus_bref_qcd/ows?',
+    {
+        layers: 'conus_bref_qcd',
+        format: 'image/png',
+        transparent: true,
+        version: '1.1.1',
+        opacity: 0.7,
+        attribution: 'NOAA'
+    }
+);
 
     radarLayer.addTo(radarMap);
 
