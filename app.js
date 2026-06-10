@@ -174,18 +174,24 @@ for(let offset=0; offset<24; offset++){
             : formatHour(data.hourly.time[i]);
 
     hourlyHtml += `
-        <div class="hour-card">
+    <div class="hour-card">
 
-            <div>${label}</div>
+        <div>${label}</div>
 
-            <div class="temp">
-                ${Math.round(
-                    data.hourly.temperature_2m[i]
-                )}°
-            </div>
-
+        <div class="weather-icon">
+            ${weatherIcon(
+                data.hourly.weather_code[i]
+            )}
         </div>
-    `;
+
+        <div class="temp">
+            ${Math.round(
+                data.hourly.temperature_2m[i]
+            )}°
+        </div>
+
+    </div>
+`;
 }
 
 hourlyHtml += '</div>';
@@ -204,30 +210,36 @@ document.getElementById(
 
 for(let i=0;i<data.daily.time.length;i++){
 
-    dailyHtml+=`
-        <div class="day-card">
+    dailyHtml += `
+    <div class="day-card">
 
-            <div>
-                ${formatDay(
-                    data.daily.time[i],
-                    i
-                )}
-            </div>
-
-            <div class="temp">
-                ${Math.round(
-                    data.daily.temperature_2m_max[i]
-                )}°
-            </div>
-
-            <div>
-                ${Math.round(
-                    data.daily.temperature_2m_min[i]
-                )}°
-            </div>
-
+        <div>
+            ${formatDay(
+                data.daily.time[i],
+                i
+            )}
         </div>
-    `;
+
+        <div class="weather-icon">
+            ${weatherIcon(
+                data.daily.weather_code[i]
+            )}
+        </div>
+
+        <div>
+            H: ${Math.round(
+                data.daily.temperature_2m_max[i]
+            )}°
+        </div>
+
+        <div>
+            L: ${Math.round(
+                data.daily.temperature_2m_min[i]
+            )}°
+        </div>
+
+    </div>
+`;
 }
 
 dailyHtml+='</div>';
