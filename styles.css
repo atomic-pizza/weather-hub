@@ -60,3 +60,8 @@ button{padding:10px;border:none;border-radius:8px;cursor:pointer}
     font-size:1.3rem;
     font-weight:bold;
 }
+
+#lastUpdated{padding:0 10px 10px;opacity:.8}
+.weather-icon{text-align:center;font-size:2rem}
+.hour-card .weather-icon,.day-card .weather-icon{font-size:1.5rem;margin:4px 0}
+.hour-card,.day-card{min-width:110px;padding:12px}

@@ -1,3 +1,4 @@
+function weatherIcon(code){if(code===0)return '☀️';if(code===1)return '🌤';if(code===2)return '⛅';if(code===3)return '☁️';if(code>=61&&code<=82)return '🌧';if(code>=95)return '⛈';return '🌤';}
 let selectedLocation = 0;
 
 function weatherDescription(code){
@@ -86,7 +87,7 @@ async function loadWeather(){
        dash.innerHTML += `
        <div class="compact" onclick="openForecast(${LOCATIONS.indexOf(loc)})">
          <div>${loc.label}</div>
-         <div><b>${Math.round(c.temperature_2m)}°F</b></div>
+         <div>${weatherIcon(c.weather_code)} <b>${Math.round(c.temperature_2m)}°F</b></div>
        </div>`;
      }else{
        dash.innerHTML += `
@@ -97,11 +98,11 @@ async function loadWeather(){
          <div>Feels Like ${Math.round(c.apparent_temperature)}°F</div>
          <div>Humidity ${c.relative_humidity_2m}%</div>
          <div>Wind ${Math.round(c.wind_speed_10m)} mph</div>
-         <div class="small">Updated ${new Date().toLocaleTimeString()}</div>
+         
        </div>`;
      }
    }
-   document.getElementById('status').textContent='';
+   document.getElementById('status').textContent='';document.getElementById('lastUpdated').textContent='🕒 Last Updated: '+new Date().toLocaleTimeString([], {hour:'numeric',minute:'2-digit'});
  }catch(err){
    console.error(err);
    document.getElementById('status').textContent='Unable to load weather data.';
