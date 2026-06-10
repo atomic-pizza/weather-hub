@@ -64,7 +64,7 @@ function initializeRadar(){
 
     radarMap = L.map('radarMap').setView(
         [37.19,-97.04],
-        8
+        9
     );
 
     L.tileLayer(
@@ -87,6 +87,9 @@ function initializeRadar(){
 );
 
     radarLayer.addTo(radarMap);
+    L.marker([37.19,-97.04])
+    .addTo(radarMap)
+    .bindPopup('🏠 New Salem');
 
     setTimeout(
         ()=>radarMap.invalidateSize(),
@@ -318,7 +321,7 @@ document.getElementById('radarHomeBtn')
 
         radarMap.setView(
             [37.19,-97.04],
-            8
+            9
         );
 
     }
