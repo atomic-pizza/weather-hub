@@ -85,22 +85,38 @@
 
         <div class="radar-controls">
 
-            <button id="radarHomeBtn">
-                🏠 Home
-            </button>
+    <button id="radarHomeBtn">
+        🏠 Home
+    </button>
 
-            <label>
-                Radar Opacity
+    <button id="radarPrevBtn">
+        ◀
+    </button>
 
-                <input
-                    type="range"
-                    id="opacitySlider"
-                    min="0"
-                    max="100"
-                    value="70">
-            </label>
+    <button id="radarPlayBtn">
+        ▶ Play
+    </button>
 
-        </div>
+    <button id="radarNextBtn">
+        ▶
+    </button>
+
+    <span id="radarTimestamp">
+        Loading radar...
+    </span>
+
+    <label>
+        Opacity
+
+        <input
+            type="range"
+            id="opacitySlider"
+            min="0"
+            max="100"
+            value="70">
+    </label>
+
+</div>
 
         <div id="radarMap"></div>
 
