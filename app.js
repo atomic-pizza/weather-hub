@@ -198,12 +198,27 @@ function hideAllViews() {
     document.getElementById('radarView').style.display = 'none';
 }
 
+function setActiveNav(id) {
+
+    document
+        .querySelectorAll('.bottom-nav button')
+        .forEach(btn => btn.classList.remove('active'));
+
+    document
+        .getElementById(id)
+        ?.classList.add('active');
+
+}
+
 function showDashboard() {
 
     hideAllViews();
 
     document.getElementById('dashboardView').style.display =
         'block';
+
+    setActiveNav('navDashboard');
+
 }
 
 function showForecast() {
@@ -212,6 +227,9 @@ function showForecast() {
 
     document.getElementById('forecastView').style.display =
         'block';
+
+    setActiveNav('navForecast');
+
 }
 
 /*==================================================
@@ -357,6 +375,8 @@ function showRadar() {
 
     document.getElementById('radarView').style.display =
         'block';
+
+    setActiveNav('navRadar');
 
     initializeRadar();
 }
