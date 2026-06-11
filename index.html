@@ -1,69 +1,144 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Weather Hub Build 1A</title>
-<link rel="manifest" href="manifest.json">
-<link rel="stylesheet" href="styles.css">
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- ==========================================
+         META / APP INFO
+    =========================================== -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+
+    <title>Weather Hub</title>
+
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="styles.css">
+
+    <!-- Leaflet -->
+    <link rel="stylesheet"
+          href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
+
 <body>
-<header>Weather Hub</header>
 
-<div class="toolbar">
-  <button id="cardBtn">Cards</button>
-  <button id="compactBtn">Compact</button>
-</div>
+    <!-- ==========================================
+         HEADER
+    =========================================== -->
+    <header>
+        Weather Hub
+    </header>
 
-<div id="status">Loading weather...</div>
-<div id="lastUpdated"></div>
+    <!-- ==========================================
+         DASHBOARD TOOLBAR
+    =========================================== -->
+    <div class="toolbar">
+        <button id="cardBtn">Cards</button>
+        <button id="compactBtn">Compact</button>
+    </div>
 
-<div id="dashboardView">
-    <div id="dashboard"></div>
-</div>
+    <!-- ==========================================
+         STATUS / LAST UPDATED
+    =========================================== -->
+    <div id="status"></div>
 
-<div id="forecastView" style="display:none;">
-    <button id="backBtn">← Back</button>
+    <div id="lastUpdated"></div>
 
-    <h2 id="forecastTitle">Forecast</h2>
+    <!-- ==========================================
+         DASHBOARD VIEW
+    =========================================== -->
+    <div id="dashboardView">
 
-    <div id="currentConditions"></div>
-
-    <h3>Next 24 Hours</h3>
-    <div id="hourlyForecast"></div>
-
-    <h3>7 Day Forecast</h3>
-    <div id="dailyForecast"></div>
-</div>
-<div id="radarView" style="display:none;">
-
-    <div class="radar-controls">
-
-        <button id="radarHomeBtn">🏠 Home</button>
-
-        <label>
-            Opacity
-            <input
-                type="range"
-                id="opacitySlider"
-                min="0"
-                max="100"
-                value="70">
-        </label>
+        <div id="dashboard"></div>
 
     </div>
 
-    <div id="radarMap"></div>
+    <!-- ==========================================
+         FORECAST VIEW
+    =========================================== -->
+    <div id="forecastView" style="display:none;">
 
-</div>
-  <nav class="bottom-nav">
-    <button id="navDashboard">Dashboard</button>
-    <button id="navForecast">Forecast</button>
-    <button id="navRadar">Radar</button>
-</nav>
+        <button id="backBtn">
+            ← Back
+        </button>
 
-<script src="app.js"></script>
+        <h2 id="forecastTitle">
+            Forecast
+        </h2>
+
+        <div id="currentConditions"></div>
+
+        <h3>Next 24 Hours</h3>
+
+        <div id="hourlyForecast"></div>
+
+        <h3>7 Day Forecast</h3>
+
+        <div id="dailyForecast"></div>
+
+    </div>
+
+    <!-- ==========================================
+         RADAR VIEW
+    =========================================== -->
+    <div id="radarView" style="display:none;">
+
+        <div class="radar-controls">
+
+            <button id="radarHomeBtn">
+                🏠 Home
+            </button>
+
+            <label>
+                Radar Opacity
+
+                <input
+                    type="range"
+                    id="opacitySlider"
+                    min="0"
+                    max="100"
+                    value="70">
+            </label>
+
+        </div>
+
+        <div id="radarMap"></div>
+
+    </div>
+
+    <!-- ==========================================
+         FUTURE: ALERTS VIEW
+    =========================================== -->
+
+    <!--
+    <div id="alertsView">
+    </div>
+    -->
+
+    <!-- ==========================================
+         BOTTOM NAVIGATION
+    =========================================== -->
+    <nav class="bottom-nav">
+
+        <button id="navDashboard">
+            Dashboard
+        </button>
+
+        <button id="navForecast">
+            Forecast
+        </button>
+
+        <button id="navRadar">
+            Radar
+        </button>
+
+    </nav>
+
+    <!-- ==========================================
+         APP SCRIPT
+    =========================================== -->
+    <script src="app.js"></script>
+
 </body>
+
 </html>
