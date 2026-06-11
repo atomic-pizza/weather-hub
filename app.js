@@ -598,6 +598,70 @@ document.getElementById('opacitySlider')
 
     }
 );
+
+document.getElementById('radarPrevBtn')
+?.addEventListener(
+    'click',
+    () => {
+
+        let prev =
+            currentFrameIndex - 1;
+
+        if (prev < 0) {
+
+            prev = radarFrames.length - 1;
+
+        }
+
+        showRadarFrame(prev);
+
+    }
+);
+
+document.getElementById('radarNextBtn')
+?.addEventListener(
+    'click',
+    () => {
+
+        let next =
+            currentFrameIndex + 1;
+
+        if (next >= radarFrames.length) {
+
+            next = 0;
+
+        }
+
+        showRadarFrame(next);
+
+    }
+);
+
+document.getElementById('radarPlayBtn')
+?.addEventListener(
+    'click',
+    e => {
+
+        if (animationInterval) {
+
+            stopRadar();
+
+            e.target.textContent =
+                '▶ Play';
+
+        } else {
+
+            playRadar();
+
+            e.target.textContent =
+                '⏸ Pause';
+
+        }
+
+    }
+);
+
+
 /*==================================================
   FUTURE: ALERTS
 ==================================================*/
