@@ -367,7 +367,13 @@ async function openForecast(index) {
 ==================================================*/
 
 let radarMap;
-let radarLayer;
+
+let radarFrames = [];
+let leafletLayers = {};
+
+let currentFrameIndex = 0;
+
+let animationInterval = null;
 
 function showRadar() {
 
@@ -381,16 +387,14 @@ function showRadar() {
     initializeRadar();
 }
 
-function initializeRadar() {
+async function initializeRadar() {
 
     if (radarMap) return;
 
-    radarMap =
-        L.map('radarMap')
-            .setView(
-                [HOME_LAT, HOME_LON],
-                HOME_ZOOM
-            );
+    radarMap = L.map('radarMap').setView(
+        [HOME_LAT, HOME_LON],
+        HOME_ZOOM
+    );
 
     L.tileLayer(
         'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
@@ -399,20 +403,51 @@ function initializeRadar() {
         }
     ).addTo(radarMap);
 
-    radarLayer =
-        L.tileLayer.wms(
-            'https://opengeo.ncep.noaa.gov/geoserver/conus/conus_bref_qcd/ows?',
-            {
-                layers: 'conus_bref_qcd',
-                format: 'image/png',
-                transparent: true,
-                version: '1.1.1',
-                opacity: 0.7,
-                attribution: 'NOAA'
-            }
+    try {
+
+        const response = await fetch(
+            'https://api.rainviewer.com/public/weather-maps.json'
         );
 
-    radarLayer.addTo(radarMap);
+        const data = await response.json();
+
+        const host = data.host;
+
+        radarFrames = data.radar.past;
+
+        radarFrames.forEach(frame => {
+
+            const tileUrl =
+                `${host}${frame.path}/512/{z}/{x}/{y}/1/1_1.png`;
+
+            leafletLayers[frame.path] =
+                L.tileLayer(tileUrl, {
+                    opacity: 0,
+                    tileSize: 512,
+                    zoomOffset: -1,
+                    maxZoom: 7,
+                    attribution:
+                        'Weather data © RainViewer'
+                });
+
+            leafletLayers[frame.path]
+                .addTo(radarMap);
+
+        });
+
+        showRadarFrame(
+            radarFrames.length - 1
+        );
+
+    } catch (err) {
+
+        console.error(err);
+
+        document.getElementById(
+            'radarTimestamp'
+        ).textContent =
+            'Unable to load radar.';
+    }
 
     L.marker([HOME_LAT, HOME_LON])
         .addTo(radarMap)
@@ -424,6 +459,77 @@ function initializeRadar() {
     );
 }
 
+function showRadarFrame(index) {
+
+    const previousPath =
+        radarFrames[currentFrameIndex]?.path;
+
+    if (previousPath) {
+
+        leafletLayers[previousPath]
+            ?.setOpacity(0);
+
+    }
+
+    currentFrameIndex = index;
+
+    const currentPath =
+        radarFrames[currentFrameIndex]?.path;
+
+    if (currentPath) {
+
+        const opacity =
+            document.getElementById(
+                'opacitySlider'
+            ).value / 100;
+
+        leafletLayers[currentPath]
+            ?.setOpacity(opacity);
+
+        const timestamp =
+            new Date(
+                radarFrames[currentFrameIndex].time * 1000
+            );
+
+        document.getElementById(
+            'radarTimestamp'
+        ).textContent =
+            timestamp.toLocaleTimeString(
+                [],
+                {
+                    hour: 'numeric',
+                    minute: '2-digit'
+                }
+            );
+    }
+}
+
+function playRadar() {
+
+    if (animationInterval) return;
+
+    animationInterval = setInterval(() => {
+
+        let next =
+            currentFrameIndex + 1;
+
+        if (next >= radarFrames.length) {
+
+            next = 0;
+
+        }
+
+        showRadarFrame(next);
+
+    }, 800);
+}
+
+function stopRadar() {
+
+    clearInterval(animationInterval);
+
+    animationInterval = null;
+}
 /*==================================================
   EVENT LISTENERS
 ==================================================*/
