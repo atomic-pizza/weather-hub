@@ -214,8 +214,13 @@ function showDashboard() {
 
     hideAllViews();
 
-    document.getElementById('dashboardView').style.display =
-        'block';
+    document.getElementById(
+        'dashboardToolbar'
+    ).style.display = 'flex';
+
+    document.getElementById(
+        'dashboardView'
+    ).style.display = 'block';
 
     setActiveNav('navDashboard');
 
@@ -225,8 +230,13 @@ function showForecast() {
 
     hideAllViews();
 
-    document.getElementById('forecastView').style.display =
-        'block';
+    document.getElementById(
+        'dashboardToolbar'
+    ).style.display = 'none';
+
+    document.getElementById(
+        'forecastView'
+    ).style.display = 'block';
 
     setActiveNav('navForecast');
 
@@ -379,12 +389,18 @@ function showRadar() {
 
     hideAllViews();
 
-    document.getElementById('radarView').style.display =
-        'block';
+    document.getElementById(
+        'dashboardToolbar'
+    ).style.display = 'none';
+
+    document.getElementById(
+        'radarView'
+    ).style.display = 'block';
 
     setActiveNav('navRadar');
 
     initializeRadar();
+
 }
 
 async function initializeRadar() {
