@@ -580,16 +580,24 @@ document.getElementById('radarHomeBtn')
     );
 
 document.getElementById('opacitySlider')
-    ?.addEventListener(
-        'input',
-        e => {
+?.addEventListener(
+    'input',
+    e => {
 
-            radarLayer?.setOpacity(
-                e.target.value / 100
-            );
+        const currentPath =
+            radarFrames[currentFrameIndex]?.path;
+
+        if (currentPath) {
+
+            leafletLayers[currentPath]
+                ?.setOpacity(
+                    e.target.value / 100
+                );
+
         }
-    );
 
+    }
+);
 /*==================================================
   FUTURE: ALERTS
 ==================================================*/
