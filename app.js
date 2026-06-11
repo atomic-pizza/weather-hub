@@ -18,7 +18,7 @@ const HOME_ZOOM = 10;
 ==================================================*/
 
 const LOCATIONS = [
-    { label: '🏠 Home', lat: HOME_LAT, lon: HOME_LON },
+    { label: 'Home', lat: HOME_LAT, lon: HOME_LON },
     { label: '🌆 Wichita', lat: 37.6872, lon: -97.3301 },
     { label: '🚗 Ponca City', lat: 36.7069, lon: -97.0856 }
 ];
@@ -123,7 +123,11 @@ async function loadWeather() {
                     <div class="compact"
                          onclick="openForecast(${LOCATIONS.indexOf(loc)})">
 
-                        <div>${loc.label}</div>
+                        <div>${
+    loc.label === 'Home'
+        ? '<span class="icon-home"></span> Home'
+        : loc.label
+}</div>
 
                         <div>
                             ${weatherIcon(current.weather_code)}
@@ -139,7 +143,11 @@ async function loadWeather() {
                     <div class="card"
                          onclick="openForecast(${LOCATIONS.indexOf(loc)})">
 
-                        <div>${loc.label}</div>
+                        <div>${
+    loc.label === 'Home'
+        ? '<span class="icon-home"></span> Home'
+        : loc.label
+}</div>
 
                         <div class="temp">
                             ${Math.round(current.temperature_2m)}°F
@@ -254,8 +262,13 @@ async function openForecast(index) {
 
     showForecast();
 
-    document.getElementById('forecastTitle').textContent =
-        `${loc.label} Forecast`;
+    document.getElementById('forecastTitle').innerHTML =
+
+    loc.label === 'Home'
+
+        ? '<span class="icon-home"></span> Home Forecast'
+
+        : `${loc.label} Forecast`;
 
     const data =
         await fetchWeather(loc.lat, loc.lon);
@@ -467,7 +480,7 @@ async function initializeRadar() {
 
     L.marker([HOME_LAT, HOME_LON])
         .addTo(radarMap)
-        .bindPopup('🏠 New Salem');
+        .bindPopup('Home - New Salem');
 
     setTimeout(
         () => radarMap.invalidateSize(),
